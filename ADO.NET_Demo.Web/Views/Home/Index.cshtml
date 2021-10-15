@@ -1,0 +1,19 @@
+﻿@page
+@using ADO.NET_Demo.Web.Models
+@model List<BookDto>
+@{
+    
+    
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+ <ul>
+    @foreach (var book in ViewBag.Books)
+    {
+        <li>Book name: @book.Name</li>
+    }
+</ul>
