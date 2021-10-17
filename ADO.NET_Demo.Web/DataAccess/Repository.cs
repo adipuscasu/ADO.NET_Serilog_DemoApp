@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ADO.NET_Demo.Web.Extensions;
 using ADO.NET_Demo.Web.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace ADO.NET_Demo.Web.DataAccess
 {
@@ -58,6 +58,34 @@ namespace ADO.NET_Demo.Web.DataAccess
             }
         }
 
+        protected async Task<IEnumerable<T>> FetchCollection<T>(string commandQuery) where T : class, new()
+        {
+            var result = new List<T>();
+            using (SqlConnection connection = new SqlConnection(_connectionStrings.AsyncDemo))
+            {
+                try
+                {
+                    using (SqlCommand command = new SqlCommand(commandQuery, connection))
+                    {
+                        await connection.OpenAsync();
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            var item = reader.ConvertToObject<T>();
+                            result.Add(item);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    throw;
+                }
+
+            }
+            return result;
+        }
+
         private void LogInfo(string logPrefix, IDictionary stats, string sql, object parameters = null)
         {
             long elapsedMilliseconds = (long)stats["ConnectionTime"];
@@ -71,5 +99,7 @@ namespace ADO.NET_Demo.Web.DataAccess
             .ForContext("SelectRows", stats["SelectRows"])
             .Information("{logPrefix} in {ElaspedTime:0.0000} ms", logPrefix, elapsedMilliseconds);
         }
+
+        
     }
 }

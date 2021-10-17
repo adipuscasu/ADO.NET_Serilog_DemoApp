@@ -21,23 +21,23 @@ namespace ADO.NET_Demo.Web.DataAccess
         public async Task<IEnumerable<BookDto>> FetchBooks()
         {
 
-            var select = $@"SELECT TOP (1000) [BOT_BOOK_ID]
-                            ,[BOT_BOOK_NAME]
-                            FROM [dbo].[BOT_BOOK]";
+            var select = $@"SELECT TOP (1000) [Id]
+                            ,[Name]
+                            FROM [dbo].[Book]";
 
-            var dt = await FetchDataTable(select);
+            var books = await FetchCollection<BookDto>(select);
             
-            var books = new List<BookDto>();
+            //var books = new List<BookDto>();
 
-            if (dt.Rows.Count == 0)
-            {
-                return books;
-            }
+            //if (dt.Rows.Count == 0)
+            //{
+            //    return books;
+            //}
 
-            books.AddRange(from DataRow row in dt.Rows
-                           select new BookDto(row));
+            //books.AddRange(from DataRow row in dt.Rows
+            //               select new BookDto(row));
 
-            return books;
+            return books.ToList();
         }
     }
 }

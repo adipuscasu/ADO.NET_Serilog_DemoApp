@@ -5,18 +5,22 @@ using System.Threading.Tasks;
 using ADO.NET_Demo.Web.DataAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ADO.NET_Demo.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IBooksRepo _booksRepo;
+        private readonly ILogger<HomeController> _logger;
 
         public HomeController(
-            IBooksRepo booksRepo
+            IBooksRepo booksRepo,
+            ILogger<HomeController> logger
             )
         {
             _booksRepo = booksRepo ?? throw new ArgumentNullException(nameof(booksRepo));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         // GET: BooksController
         public async Task<ActionResult> IndexAsync()
@@ -24,6 +28,7 @@ namespace ADO.NET_Demo.Web.Controllers
             var books = await _booksRepo.FetchBooks();
             ViewData["Books"] = books;
             ViewBag.Books = books;
+            _logger.LogError($"Getting {books.ToList().Count} books");
             return View();
         }
 
