@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ADO.NET_Demo.Web.DataAccess;
+﻿using ADO.NET_Demo.Web.DataAccess;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ADO.NET_Demo.Web.Controllers
 {
+
     public class HomeController : Controller
     {
         private readonly IBooksRepo _booksRepo;
@@ -39,6 +40,8 @@ namespace ADO.NET_Demo.Web.Controllers
         }
 
         // GET: BooksController/Create
+        [Authorize]
+
         public ActionResult Create()
         {
             return View();
@@ -46,6 +49,7 @@ namespace ADO.NET_Demo.Web.Controllers
 
         // POST: BooksController/Create
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
         {
@@ -60,6 +64,8 @@ namespace ADO.NET_Demo.Web.Controllers
         }
 
         // GET: BooksController/Edit/5
+        [Authorize]
+
         public ActionResult Edit(int id)
         {
             return View();
@@ -68,6 +74,7 @@ namespace ADO.NET_Demo.Web.Controllers
         // POST: BooksController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Edit(int id, IFormCollection collection)
         {
             try
@@ -81,6 +88,8 @@ namespace ADO.NET_Demo.Web.Controllers
         }
 
         // GET: BooksController/Delete/5
+        [Authorize]
+
         public ActionResult Delete(int id)
         {
             return View();
@@ -89,6 +98,8 @@ namespace ADO.NET_Demo.Web.Controllers
         // POST: BooksController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
+
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try

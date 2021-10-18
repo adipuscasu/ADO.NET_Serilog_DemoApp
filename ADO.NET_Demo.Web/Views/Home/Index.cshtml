@@ -2,8 +2,8 @@
 @using ADO.NET_Demo.Web.Models
 @model List<BookDto>
 @{
-    
-    
+
+
 }
 
 
@@ -11,9 +11,13 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
- <ul>
+<ul>
     @foreach (var book in ViewBag.Books)
     {
-        <li>Book name: @book.Name</li>
+        <li>
+            Book name: @book.Name
+            <a href="<%=Url.Action('Home', 'Details' , new { categoryID=@book.Id }) %>#section12">@book.Id - @book.Name</a>
+
+        </li>
     }
 </ul>
