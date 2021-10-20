@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
+using ADO.NET_Demo.Web.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ADO.NET_Demo.Web.Controllers
 {
@@ -15,6 +13,18 @@ namespace ADO.NET_Demo.Web.Controllers
     [Authorize]
     public class ValuesController : ControllerBase
     {
+        private readonly ILoginService _loginService;
+        private readonly ILogger<ValuesController> _logger;
+
+        public ValuesController(ILoginService loginService,
+            ILogger<ValuesController> logger
+
+            )
+        {
+            _loginService = loginService ?? throw new ArgumentNullException(nameof(loginService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         [HttpGet("getFruits")]
         [AllowAnonymous]
         public ActionResult GetFruits()
@@ -42,6 +52,7 @@ namespace ADO.NET_Demo.Web.Controllers
         [HttpGet("getVegetables")]
         public ActionResult GetVegetables()
         {
+
             List<string> myList = new List<string>
             {
                 "Cabbage", "Carrots"
@@ -50,34 +61,22 @@ namespace ADO.NET_Demo.Web.Controllers
             return Ok(myList);
         }
 
-        
+
         [AllowAnonymous]
         [HttpPost("getToken")]
         public async Task<ActionResult> GetToken([FromBody] LoginCredentials loginCredentials)
         {
-            if (loginCredentials.Email == "some@email.com" && loginCredentials.Password == "pass1234")
-            {
+            await _loginService.IsLoginValidAsync(loginCredentials);
+            var tokenString = _loginService.BuildToken(loginCredentials);
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes("yfH5LarK5qM1dITJV72XuwcMF4GHB7v0USAZR2FAQpGT5fjLq54otREpxGzE");
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, loginCredentials.Email)
-                    }),
-                    Expires = DateTime.UtcNow.AddDays(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-                };
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var tokenString = tokenHandler.WriteToken(token);
+            return Ok(new { Token = tokenString });
+        }
 
-                return Ok(new { Token = tokenString });
-            }
-            else
-            {
-                return Unauthorized();
-            }
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<ActionResult> SignIn(SignInDto signInDto)
+        {
+            return Ok();
         }
     }
 }

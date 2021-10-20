@@ -1,8 +1,12 @@
+using ADO.NET_Demo.Web.Areas.Identity.Data;
 using ADO.NET_Demo.Web.DataAccess;
+using ADO.NET_Demo.Web.Extensions;
 using ADO.NET_Demo.Web.Models;
+using ADO.NET_Demo.Web.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,7 +43,15 @@ namespace ADO.NET_Demo.Web
                 {
                     OnTokenValidated = context =>
                     {
-                        // TODO claims
+                        var userMachine = context
+                                            .HttpContext
+                                            .RequestServices
+                                            .GetRequiredService<UserManager<AppUser>>();
+                        var user = userMachine.GetUserAsync(context.HttpContext.User);
+                        if (user is null)
+                        {
+                            context.Fail("Unauthorized");
+                        }
                         return Task.CompletedTask;
                     }
                 };
@@ -64,7 +76,13 @@ namespace ADO.NET_Demo.Web
 
             services.Configure<ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
 
-            services.AddScoped<IBooksRepo, BooksRepo>();
+
+
+            services
+                .AddScoped<ILoginService, LoginService>();
+
+            services
+                .AddScoped<IBooksRepo, BooksRepo>();
 
             services.AddRazorPages();
 
@@ -91,6 +109,9 @@ namespace ADO.NET_Demo.Web
             Log.Information("Configuring services");
 
             app.UseHttpsRedirection();
+
+            app.ConfigureExceptionHandler();
+
             app.UseStaticFiles();
 
             app.UseSerilogRequestLogging();
