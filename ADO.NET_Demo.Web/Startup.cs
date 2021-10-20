@@ -6,6 +6,7 @@ using ADO.NET_Demo.Web.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,9 +80,7 @@ namespace ADO.NET_Demo.Web
 
 
             services
-                .AddScoped<ILoginService, LoginService>();
-
-            services
+                .AddScoped<ILoginService, LoginService>()
                 .AddScoped<IBooksRepo, BooksRepo>();
 
             services.AddRazorPages();
@@ -110,7 +109,7 @@ namespace ADO.NET_Demo.Web
 
             app.UseHttpsRedirection();
 
-            app.ConfigureExceptionHandler();
+            app.ConfigureCustomExceptionMiddleware();
 
             app.UseStaticFiles();
 
